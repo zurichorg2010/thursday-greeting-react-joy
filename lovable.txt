@@ -1,4 +1,2 @@
 
-App Title: Hello Thruday
-Project Link: https://lovable.dev/projects/9bf1811d-9db1-462d-b3c0-5b80211f1bd7
-create link thusdayItIs
+createLink: thrusday
