@@ -61,8 +61,9 @@ const EditTaskDialog = ({ task, isOpen, onClose }: EditTaskDialogProps) => {
     };
     
     try {
-      // Added the boardId parameter to match the expected function signature
-      await updateTask(updatedTask, task.boardId);
+      // Fixed: Pass task.id instead of the whole task object
+      // Also removed the boardId parameter since it's not needed
+      await updateTask(updatedTask);
       onClose();
     } catch (error) {
       console.error("Error updating task:", error);

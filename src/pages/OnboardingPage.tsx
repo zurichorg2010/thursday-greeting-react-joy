@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
-  const { user, updateUserProfile } = useApp();
+  const { user, updateUser } = useApp(); // Changed from updateUserProfile to updateUser as per context definition
   const [name, setName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -27,8 +27,8 @@ const OnboardingPage = () => {
     
     try {
       setIsLoading(true);
-      // Fix: Call updateUserProfile without extra parameters
-      await updateUserProfile({ name, jobTitle, company });
+      // Use updateUser instead of updateUserProfile
+      await updateUser({ name, jobTitle, company });
       navigate("/dashboard");
     } catch (error) {
       setError("Failed to update profile. Please try again.");
