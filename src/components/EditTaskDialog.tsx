@@ -60,9 +60,15 @@ const EditTaskDialog = ({ task, isOpen, onClose }: EditTaskDialogProps) => {
       deadline: deadline?.toISOString()
     };
     
-    await updateTask(updatedTask);
-    setIsSubmitting(false);
-    onClose();
+    try {
+      // Added the boardId parameter to match the expected function signature
+      await updateTask(updatedTask, task.boardId);
+      onClose();
+    } catch (error) {
+      console.error("Error updating task:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
