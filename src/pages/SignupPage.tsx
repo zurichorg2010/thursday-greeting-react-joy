@@ -33,7 +33,8 @@ const SignupPage = () => {
     
     try {
       setIsLoading(true);
-      await signUp(email, password, name);
+      // Updated to match the expected 2 arguments (email, password)
+      await signUp(email, password);
       navigate("/onboarding");
     } catch (error) {
       setError("Failed to create account. Please try again.");
