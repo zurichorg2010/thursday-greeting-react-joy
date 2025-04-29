@@ -1,2 +1,2 @@
-createLink: thrusdayProject Name: thrusday-0053
-Canonical URL: https://testing0-0035.laxroute53.com/public/as/_FFFFFFFFFFFFFF00001745601044330004_/at/_FFFFFFFFFFFFFF00001745601044330004_/
+
+createLink: friday
