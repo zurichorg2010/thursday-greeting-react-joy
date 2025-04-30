@@ -1,6 +1,6 @@
 
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import Index from "./src/pages/Index";
 import SignupPage from "./src/pages/SignupPage";
 import SigninPage from "./src/pages/SigninPage";
@@ -9,7 +9,7 @@ import DashboardPage from "./src/pages/DashboardPage";
 import BoardPage from "./src/pages/BoardPage";
 import NotFound from "./src/pages/NotFound";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <Index />,
