@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,9 +60,8 @@ const EditTaskDialog = ({ task, isOpen, onClose }: EditTaskDialogProps) => {
     };
     
     try {
-      // Fixed: Pass task.id instead of the whole task object
-      // Also removed the boardId parameter since it's not needed
-      await updateTask(updatedTask);
+      // Fix: Pass the task ID and updated task as required by the context
+      await updateTask(task.id, updatedTask);
       onClose();
     } catch (error) {
       console.error("Error updating task:", error);
