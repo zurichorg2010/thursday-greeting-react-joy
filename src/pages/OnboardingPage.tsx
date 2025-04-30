@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useApp(); // Using updateUser which exists in the context
+  const { user, completeOnboarding } = useApp(); // Using completeOnboarding which exists in the context
   const [name, setName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
@@ -27,8 +27,8 @@ const OnboardingPage = () => {
     
     try {
       setIsLoading(true);
-      // Use updateUser instead of updateUserProfile
-      await updateUser({ name, jobTitle, company });
+      // Use completeOnboarding instead of updateUser
+      completeOnboarding();
       navigate("/dashboard");
     } catch (error) {
       setError("Failed to update profile. Please try again.");
