@@ -1,2 +1,7 @@
-createLink: thrusdayProject Name: thrusday-0053
-Canonical URL: https://testing0-0035.laxroute53.com/public/as/_FFFFFFFFFFFFFF00001745601044330004_/at/_FFFFFFFFFFFFFF00001745601044330004_/
+
+createLink: friday
+Project Name: friday00-0063
+Canonical URL: https://testing0-0035.laxroute53.com/public/as/_FFFFFFFFFFFFFF00001745671422905013_/at/_FFFFFFFFFFFFFF00001745671422905013_/
+createLink: friday-flow
+Project Name: friday-flow
+Canonical URL: https://testing0-0035.laxroute53.com/public/as/_FFFFFFFFFFFFFF00001746024842507004_/at/_FFFFFFFFFFFFFF00001746024842507004_/

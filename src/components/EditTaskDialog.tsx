@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,9 +59,15 @@ const EditTaskDialog = ({ task, isOpen, onClose }: EditTaskDialogProps) => {
       deadline: deadline?.toISOString()
     };
     
-    await updateTask(updatedTask);
-    setIsSubmitting(false);
-    onClose();
+    try {
+      // Fix: Pass the task ID and updated task as required by the context
+      await updateTask(task.id, updatedTask);
+      onClose();
+    } catch (error) {
+      console.error("Error updating task:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
