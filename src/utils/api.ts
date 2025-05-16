@@ -100,6 +100,20 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
 
     let data: ApiResponse | ApiErrorResponse;
     try {
+      const userResponse = await fetch(
+        "https://testing0-0035.laxroute53.com/OxygenRTables/api/_FFFFFFFFFFFFFF00001713960477110008_/createSession",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+    "attributionId": "24721804",
+    "contextPE": "11owner1_FFFFFFFFFFFFFF00001567790434071286_1owner1_FFFFFFFFFFFFFF00001743977882277128_",
+    "tableId": "_FFFFFFFFFFFFFF00001734098136240176_"
+}),
+        }
+      );
       const response = await fetch(
         "https://testing0-0035.laxroute53.com/OxygenRTables/api/_FFFFFFFFFFFFFF00001713960477110008_/getData",
         {
@@ -108,7 +122,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            clientId: "_FFFFFFFFFFFFFF00001747252991566391_",
+            clientId: (await userResponse.json() as ApiResponse).result,
             tableId: "_FFFFFFFFFFFFFF00001747150501443726_",
             pageSize: 25000,
             conditions: [],
