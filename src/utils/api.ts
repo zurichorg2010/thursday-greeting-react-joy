@@ -95,7 +95,6 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
   }
 
   try {
-    // Read from local data.json file
     console.log("Fetching data from local file");
 
     let data: ApiResponse | ApiErrorResponse;

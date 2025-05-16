@@ -1,7 +1,23 @@
-
 import { ChevronDown } from "lucide-react";
+import { fetchMetaAdsData } from "@/utils/api";
+import { useState } from "react";
 
 const DashboardHeader = () => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      await fetchMetaAdsData(true); 
+      window.location.reload(); 
+      
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="flex justify-between items-center mb-6">
       <div>
@@ -15,8 +31,14 @@ const DashboardHeader = () => {
           <ChevronDown className="ml-2 h-4 w-4" />
         </button>
         
-        <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-          Refresh Data
+        <button 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className={`bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium ${
+            isRefreshing ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+        >
+          {isRefreshing ? 'Refreshing...' : 'Refresh Data'}
         </button>
       </div>
     </div>

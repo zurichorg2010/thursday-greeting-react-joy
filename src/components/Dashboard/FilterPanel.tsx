@@ -52,6 +52,7 @@ const FilterPanel = ({
   const [spendRange, setSpendRange] = useState<number[]>([0, 5000]);
   const [orderIds, setOrderIds] = useState<string>("");
   const [partners, setPartners] = useState<string>("");
+  const [campaignSearch, setCampaignSearch] = useState<string>("");
 
   const handleApplyFilters = () => {
     applyFilters({
@@ -76,6 +77,7 @@ const FilterPanel = ({
     setSpendRange([0, 5000]);
     setOrderIds("");
     setPartners("");
+    setCampaignSearch("");
     
     applyFilters({
       dateRange: { from: undefined, to: undefined },
@@ -172,14 +174,7 @@ const FilterPanel = ({
           </Popover>
         </div>
 
-        <div className="space-y-2">
-          <Label>Order IDs</Label>
-          <Input 
-            placeholder="Enter order IDs, comma separated" 
-            value={orderIds}
-            onChange={(e) => setOrderIds(e.target.value)}
-          />
-        </div>
+
 
         <div className="space-y-2">
           <Label>Partners</Label>
@@ -204,22 +199,34 @@ const FilterPanel = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-              <div className="p-4 max-h-72 overflow-auto space-y-3">
-                {campaigns.map((campaign) => (
-                  <div key={campaign} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`campaign-${campaign}`}
-                      checked={tempCampaigns.includes(campaign)}
-                      onCheckedChange={() => toggleCampaign(campaign)}
-                    />
-                    <Label
-                      htmlFor={`campaign-${campaign}`}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {campaign}
-                    </Label>
-                  </div>
-                ))}
+              <div className="p-4 space-y-3">
+                <Input
+                  placeholder="Search campaigns..."
+                  className="mb-2"
+                  value={campaignSearch}
+                  onChange={(e) => setCampaignSearch(e.target.value)}
+                />
+                <div className="max-h-72 overflow-auto space-y-3">
+                  {campaigns
+                    .filter(campaign => 
+                      campaign.toLowerCase().includes(campaignSearch.toLowerCase())
+                    )
+                    .map((campaign) => (
+                      <div key={campaign} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`campaign-${campaign}`}
+                          checked={tempCampaigns.includes(campaign)}
+                          onCheckedChange={() => toggleCampaign(campaign)}
+                        />
+                        <Label
+                          htmlFor={`campaign-${campaign}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {campaign}
+                        </Label>
+                      </div>
+                    ))}
+                </div>
               </div>
             </PopoverContent>
           </Popover>
@@ -296,22 +303,6 @@ const FilterPanel = ({
         </div>
 
         <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Frequency</Label>
-              <span className="text-xs text-gray-500">
-                {frequencyRange[0]} - {frequencyRange[1]}
-              </span>
-            </div>
-            <Slider
-              defaultValue={[1, 10]}
-              max={20}
-              min={1}
-              step={1}
-              value={frequencyRange}
-              onValueChange={setFrequencyRange}
-            />
-          </div>
           
           <div className="space-y-2">
             <div className="flex items-center justify-between">

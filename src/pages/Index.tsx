@@ -13,10 +13,12 @@ import {
 import { MetaAdsData } from "@/types/dashboard";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { fetchMetaAdsData } from "@/utils/api";
 
 const Index = () => {
   const { data, isLoading, isError, error } = useMetaAdsData();
   const [isFiltering, setIsFiltering] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [analyticsData, setAnalyticsData] = useState<{
     summary: any;
     campaignPerformance: any[];
@@ -37,7 +39,11 @@ const Index = () => {
   useEffect(() => {
     const loadAnalyticsData = async () => {
       setIsFiltering(true);
+      setIsRefreshing(true);
       try {
+        // Refresh data on initial load
+        await fetchMetaAdsData(true);
+        
         let filteredData = [...displayData];
 
         // Default date range (May 1st, 2024 to yesterday)
@@ -69,18 +75,19 @@ const Index = () => {
         });
 
         toast({
-          title: "Default filters applied",
-          description: "Analytics data has been updated with default filters.",
+          title: "Data refreshed and default filters applied",
+          description: "Analytics data has been updated with fresh data and default filters.",
         });
       } catch (error) {
         console.error('Error loading analytics data:', error);
         toast({
-          title: "Error applying filters",
-          description: error instanceof Error ? error.message : "Failed to apply filters",
+          title: "Error refreshing data",
+          description: error instanceof Error ? error.message : "Failed to refresh data",
           variant: "destructive",
         });
       } finally {
         setIsFiltering(false);
+        setIsRefreshing(false);
       }
     };
 
