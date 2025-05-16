@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 
@@ -352,6 +353,220 @@ function getPayloadConfigFromPayload(
     ? config[configLabelKey]
     : config[key as keyof typeof config]
 }
+
+// Define specific chart component wrappers for use in the dashboard
+interface ChartProps {
+  data: any[];
+  categories: string[];
+  index: string;
+  colors?: string[];
+  valueFormatter?: (value: number) => string;
+  yAxisWidth?: number;
+  showLegend?: boolean;
+  showXAxis?: boolean;
+  showYAxis?: boolean;
+  showGrid?: boolean;
+  showTooltip?: boolean;
+}
+
+export const LineChart = ({
+  data,
+  categories,
+  index,
+  colors = ["#2563eb"],
+  valueFormatter = (value: number) => `${value}`,
+  yAxisWidth = 40,
+  showLegend = true,
+  showXAxis = true,
+  showYAxis = true,
+  showGrid = true,
+  showTooltip = true,
+}: ChartProps) => {
+  const config = categories.reduce((acc, category, idx) => {
+    acc[category] = {
+      color: colors[idx % colors.length],
+    };
+    return acc;
+  }, {} as ChartConfig);
+
+  return (
+    <ChartContainer config={config}>
+      <RechartsPrimitive.LineChart data={data}>
+        {showGrid && (
+          <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+        )}
+        {showXAxis && (
+          <RechartsPrimitive.XAxis
+            dataKey={index}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+          />
+        )}
+        {showYAxis && (
+          <RechartsPrimitive.YAxis
+            width={yAxisWidth}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={valueFormatter}
+          />
+        )}
+        {showTooltip && <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />}
+        {showLegend && (
+          <RechartsPrimitive.Legend
+            content={<ChartLegendContent />}
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
+        )}
+        {categories.map((category, idx) => (
+          <RechartsPrimitive.Line
+            key={category}
+            type="monotone"
+            dataKey={category}
+            stroke={colors[idx % colors.length]}
+            activeDot={{ r: 5 }}
+            strokeWidth={2}
+          />
+        ))}
+      </RechartsPrimitive.LineChart>
+    </ChartContainer>
+  );
+};
+
+export const AreaChart = ({
+  data,
+  categories,
+  index,
+  colors = ["#2563eb"],
+  valueFormatter = (value: number) => `${value}`,
+  yAxisWidth = 40,
+  showLegend = true,
+  showXAxis = true,
+  showYAxis = true,
+  showGrid = true,
+  showTooltip = true,
+}: ChartProps) => {
+  const config = categories.reduce((acc, category, idx) => {
+    acc[category] = {
+      color: colors[idx % colors.length],
+    };
+    return acc;
+  }, {} as ChartConfig);
+
+  return (
+    <ChartContainer config={config}>
+      <RechartsPrimitive.AreaChart data={data}>
+        {showGrid && (
+          <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+        )}
+        {showXAxis && (
+          <RechartsPrimitive.XAxis
+            dataKey={index}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+          />
+        )}
+        {showYAxis && (
+          <RechartsPrimitive.YAxis
+            width={yAxisWidth}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={valueFormatter}
+          />
+        )}
+        {showTooltip && <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />}
+        {showLegend && (
+          <RechartsPrimitive.Legend
+            content={<ChartLegendContent />}
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
+        )}
+        {categories.map((category, idx) => (
+          <RechartsPrimitive.Area
+            key={category}
+            type="monotone"
+            dataKey={category}
+            stroke={colors[idx % colors.length]}
+            fill={colors[idx % colors.length] + "33"}
+            activeDot={{ r: 5 }}
+            strokeWidth={2}
+          />
+        ))}
+      </RechartsPrimitive.AreaChart>
+    </ChartContainer>
+  );
+};
+
+export const BarChart = ({
+  data,
+  categories,
+  index,
+  colors = ["#2563eb"],
+  valueFormatter = (value: number) => `${value}`,
+  yAxisWidth = 40,
+  showLegend = true,
+  showXAxis = true,
+  showYAxis = true,
+  showGrid = true,
+  showTooltip = true,
+}: ChartProps) => {
+  const config = categories.reduce((acc, category, idx) => {
+    acc[category] = {
+      color: colors[idx % colors.length],
+    };
+    return acc;
+  }, {} as ChartConfig);
+
+  return (
+    <ChartContainer config={config}>
+      <RechartsPrimitive.BarChart data={data}>
+        {showGrid && (
+          <RechartsPrimitive.CartesianGrid strokeDasharray="3 3" />
+        )}
+        {showXAxis && (
+          <RechartsPrimitive.XAxis
+            dataKey={index}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+          />
+        )}
+        {showYAxis && (
+          <RechartsPrimitive.YAxis
+            width={yAxisWidth}
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={valueFormatter}
+          />
+        )}
+        {showTooltip && <RechartsPrimitive.Tooltip content={<ChartTooltipContent />} />}
+        {showLegend && (
+          <RechartsPrimitive.Legend
+            content={<ChartLegendContent />}
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+          />
+        )}
+        {categories.map((category, idx) => (
+          <RechartsPrimitive.Bar
+            key={category}
+            dataKey={category}
+            fill={colors[idx % colors.length]}
+          />
+        ))}
+      </RechartsPrimitive.BarChart>
+    </ChartContainer>
+  );
+};
 
 export {
   ChartContainer,
