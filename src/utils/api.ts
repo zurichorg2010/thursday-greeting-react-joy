@@ -101,7 +101,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
     let data: ApiResponse | ApiErrorResponse;
     try {
       const response = await fetch(
-        "https://debianlargeserver-0050-developer.laxroute53.com/OxygenRTables/api/_FFFFFFFFFFFFFF00001713960477110008_/getData",
+        "https://testing0-0035.laxroute53.com/OxygenRTables/api/_FFFFFFFFFFFFFF00001713960477110008_/getData",
         {
           method: "POST",
           headers: {
