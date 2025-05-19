@@ -15,8 +15,10 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
+import { MetaAdsData } from "@/types/dashboard";
 
 interface FilterPanelProps {
+  partners: string[];
   campaigns: string[];
   objectives: string[];
   customers: string[];
@@ -26,9 +28,11 @@ interface FilterPanelProps {
   selectedObjectives: string[];
   selectedCustomers: string[];
   isFiltering?: boolean;
+  data?: MetaAdsData[];
 }
 
 const FilterPanel = ({
+  partners,
   campaigns,
   objectives,
   customers,
@@ -38,7 +42,7 @@ const FilterPanel = ({
   selectedObjectives,
   selectedCustomers,
   isFiltering,
-  
+  data,
 }: FilterPanelProps) => {
   const [tempDateRange, setTempDateRange] = useState<{
     from: Date | undefined;
@@ -51,21 +55,23 @@ const FilterPanel = ({
   const [frequencyRange, setFrequencyRange] = useState<number[]>([1, 10]);
   const [spendRange, setSpendRange] = useState<number[]>([0, 5000]);
   const [orderIds, setOrderIds] = useState<string>("");
-  const [partners, setPartners] = useState<string>("");
+  const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
   const [campaignSearch, setCampaignSearch] = useState<string>("");
+  const [partnerSearch, setPartnerSearch] = useState("");
+  const [orderIdSearch, setOrderIdSearch] = useState("");
+
+  // Get unique partners and order IDs from data
+  const uniquePartners = Array.from(new Set(partners || []));
+  const uniqueOrderIds = Array.from(new Set(data?.map(item => item.order_id).filter(Boolean) || []));
 
   const handleApplyFilters = () => {
     applyFilters({
       dateRange: tempDateRange,
       campaigns: tempCampaigns,
-      objectives: tempObjectives,
-      customers: tempCustomers,
-      frequencyRange,
-      spendRange,
-      orderIds: orderIds.trim() ? orderIds.split(',').map(id => id.trim()) : [],
-      partners: partners.trim() ? partners.split(',').map(partner => partner.trim()) : [],
+      partners: selectedPartners,
+      orderIds: selectedOrderIds,
     });
-    
   };
 
   const handleResetFilters = () => {
@@ -76,18 +82,17 @@ const FilterPanel = ({
     setFrequencyRange([1, 10]);
     setSpendRange([0, 5000]);
     setOrderIds("");
-    setPartners("");
+    setSelectedPartners([]);
+    setSelectedOrderIds([]);
     setCampaignSearch("");
+    setPartnerSearch("");
+    setOrderIdSearch("");
     
     applyFilters({
       dateRange: { from: undefined, to: undefined },
       campaigns: [],
-      objectives: [],
-      customers: [],
-      frequencyRange: [1, 10],
-      spendRange: [0, 5000],
-      orderIds: [],
       partners: [],
+      orderIds: [],
     });
   };
 
@@ -96,22 +101,6 @@ const FilterPanel = ({
       setTempCampaigns(tempCampaigns.filter(c => c !== campaign));
     } else {
       setTempCampaigns([...tempCampaigns, campaign]);
-    }
-  };
-
-  const toggleObjective = (objective: string) => {
-    if (tempObjectives.includes(objective)) {
-      setTempObjectives(tempObjectives.filter(o => o !== objective));
-    } else {
-      setTempObjectives([...tempObjectives, objective]);
-    }
-  };
-
-  const toggleCustomer = (customer: string) => {
-    if (tempCustomers.includes(customer)) {
-      setTempCustomers(tempCustomers.filter(c => c !== customer));
-    } else {
-      setTempCustomers([...tempCustomers, customer]);
     }
   };
 
@@ -174,15 +163,57 @@ const FilterPanel = ({
           </Popover>
         </div>
 
-
-
         <div className="space-y-2">
           <Label>Partners</Label>
-          <Input 
-            placeholder="Enter partners, comma separated" 
-            value={partners}
-            onChange={(e) => setPartners(e.target.value)}
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span>
+                  {selectedPartners.length === 0
+                    ? "Select partners"
+                    : `${selectedPartners.length} selected`}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <div className="p-4 space-y-3">
+                <Input
+                  placeholder="Search partners..."
+                  className="mb-2"
+                  value={partnerSearch}
+                  onChange={(e) => setPartnerSearch(e.target.value)}
+                />
+                <div className="max-h-72 overflow-auto space-y-3">
+                  {uniquePartners
+                    .filter(partner => 
+                      partner.toLowerCase().includes(partnerSearch.toLowerCase())
+                    )
+                    .map((partner) => (
+                      <div key={partner} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`partner-${partner}`}
+                          checked={selectedPartners.includes(partner)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedPartners([...selectedPartners, partner]);
+                            } else {
+                              setSelectedPartners(selectedPartners.filter(p => p !== partner));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`partner-${partner}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {partner}
+                        </Label>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="space-y-2">
@@ -233,93 +264,56 @@ const FilterPanel = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Objectives</Label>
+          <Label>Order IDs</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="w-full justify-between">
                 <span>
-                  {tempObjectives.length === 0
-                    ? "Select objectives"
-                    : `${tempObjectives.length} selected`}
+                  {selectedOrderIds.length === 0
+                    ? "Select Order IDs"
+                    : `${selectedOrderIds.length} selected`}
                 </span>
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-              <div className="p-4 max-h-72 overflow-auto space-y-3">
-                {objectives.map((objective) => (
-                  <div key={objective} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`objective-${objective}`}
-                      checked={tempObjectives.includes(objective)}
-                      onCheckedChange={() => toggleObjective(objective)}
-                    />
-                    <Label
-                      htmlFor={`objective-${objective}`}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {objective}
-                    </Label>
-                  </div>
-                ))}
+              <div className="p-4 space-y-3">
+                <Input
+                  placeholder="Search Order IDs..."
+                  className="mb-2"
+                  value={orderIdSearch}
+                  onChange={(e) => setOrderIdSearch(e.target.value)}
+                />
+                <div className="max-h-72 overflow-auto space-y-3">
+                  {uniqueOrderIds
+                    .filter(orderId => 
+                      String(orderId).toLowerCase().includes(orderIdSearch.toLowerCase())
+                    )
+                    .map((orderId) => (
+                      <div key={String(orderId)} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`orderId-${orderId}`}
+                          checked={selectedOrderIds.includes(String(orderId))}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedOrderIds([...selectedOrderIds, String(orderId)]);
+                            } else {
+                              setSelectedOrderIds(selectedOrderIds.filter(id => id !== String(orderId)));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`orderId-${orderId}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {String(orderId)}
+                        </Label>
+                      </div>
+                    ))}
+                </div>
               </div>
             </PopoverContent>
           </Popover>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Customers</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="w-full justify-between">
-                <span>
-                  {tempCustomers.length === 0
-                    ? "Select customers"
-                    : `${tempCustomers.length} selected`}
-                </span>
-                <ChevronDown className="h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="start">
-              <div className="p-4 max-h-72 overflow-auto space-y-3">
-                {customers.map((customer) => (
-                  <div key={customer} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`customer-${customer}`}
-                      checked={tempCustomers.includes(customer)}
-                      onCheckedChange={() => toggleCustomer(customer)}
-                    />
-                    <Label
-                      htmlFor={`customer-${customer}`}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {customer}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        <div className="space-y-4">
-          
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Spend Range ($)</Label>
-              <span className="text-xs text-gray-500">
-                ${spendRange[0]} - ${spendRange[1]}
-              </span>
-            </div>
-            <Slider
-              defaultValue={[0, 5000]}
-              max={10000}
-              min={0}
-              step={100}
-              value={spendRange}
-              onValueChange={setSpendRange}
-            />
-          </div>
         </div>
 
         <div className="pt-4 space-y-2">

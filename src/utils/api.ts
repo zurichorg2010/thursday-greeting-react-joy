@@ -80,8 +80,7 @@ const readFromIndexedDB = async (): Promise<MetaAdsData[]> => {
 };
 
 export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsData[]> => {
-  console.log("Fetching data from API");
-  // Check if we have cached data and not forcing refresh
+  console.log("Fetching data from API loda lahsun");
   if (!forceRefresh) {
     try {
       const cachedData = await readFromIndexedDB();
@@ -156,13 +155,27 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       });
       return [];
     }
+    console.log(data.result[0].created_at)
+    console.log(convertUTCToPST(data.result[0].created_at))
+    
+    // Create a Map to store unique items by ID
+    const uniqueItemsMap = new Map();
+    
+    // First pass: collect unique items by ID
+    data.result.forEach(item => {
+      const itemId = item["Primary Key"] || String(item["Row ID"]);
+      // If item doesn't exist in map or has a newer created_at, add/update it
+      if (!uniqueItemsMap.has(itemId) || 
+          new Date(item.created_at) > new Date(uniqueItemsMap.get(itemId).created_at)) {
+        uniqueItemsMap.set(itemId, item);
+      }
+    });
 
-    // Transform API response to match MetaAdsData structure
-    const transformedData = data.result.map(item => ({
+    const transformedData = Array.from(uniqueItemsMap.values()).map(item => ({
       id: item["Primary Key"] || String(item["Row ID"]),
       campaign_name: item.campaign_name || "",
-      date_start: item.date_start || "",
-      date_stop: item.date_stop || "",
+      date_start: item.date_start ? convertUTCToPST(item.date_start) : "",
+      date_stop: item.date_stop ? convertUTCToPST(item.date_stop) : "",
       impressions: Number(item.impressions) || 0,
       other_id: item.id || "",
       clicks: Number(item.clicks) || 0,
@@ -176,7 +189,8 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       unique_clicks: Number(item.unique_clicks) || 0,
       unique_ctr: Number(item.unique_ctr) || 0,
       DisplayName: item.DisplayName || "",
-
+      partner: item.partner || "",
+      order_id: item.order_id || "",
       // Action types
       actions_landing_page_view: Number(item.actions_landing_page_view) || 0,
       actions_link_click: Number(item.actions_link_click) || 0,
@@ -196,7 +210,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       unique_actions_link_click: Number(item.unique_actions_link_click) || 0,
 
       // Other fields
-      created_at: item.created_at || "",
+      created_at: item.created_at ? convertUTCToPST(item.created_at) : "",
     }));
 
     // Save the transformed data to IndexedDB
@@ -218,3 +232,23 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
     return [];
   }
 };
+
+function convertUTCToPST(date: string): string {
+  console.log("Converting UTC to PST", date);
+  const dateObj = new Date(date);
+  
+  // Format the date in PST/PDT
+  const pstDate = dateObj.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  
+  console.log("PST Date", pstDate);
+  return pstDate;
+}

@@ -32,10 +32,13 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
 
   // Handle search
   const filteredData = data.filter(item => {
+    const searchLower = searchTerm.toLowerCase();
     return (
-      item.campaign_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.objective.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.DisplayName.toLowerCase().includes(searchTerm.toLowerCase())
+      item.campaign_name.toLowerCase().includes(searchLower) ||
+      item.objective.toLowerCase().includes(searchLower) ||
+      item.DisplayName.toLowerCase().includes(searchLower) ||
+      (item.partner?.toLowerCase().includes(searchLower) || false) ||
+      (item.order_id?.toLowerCase().includes(searchLower) || false)
     );
   });
 
@@ -86,7 +89,7 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
         <CardContent>
           <div className="mb-4">
             <Input
-              placeholder="Search by campaign name, objective, or brand..."
+              placeholder="Search by campaign name, objective, brand, partner, or order ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
@@ -136,6 +139,12 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
                   <TableHead className="cursor-pointer" onClick={() => requestSort('DisplayName')}>
                     Customer {getSortDirection('DisplayName')}
                   </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => requestSort('partner')}>
+                    Partner {getSortDirection('partner')}
+                  </TableHead>
+                  <TableHead className="cursor-pointer" onClick={() => requestSort('order_id')}>
+                    Order ID {getSortDirection('order_id')}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -155,11 +164,13 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
                       <TableCell>{item.objective}</TableCell>
                       <TableCell className="text-right">{formatNumber(item.unique_clicks)}</TableCell>
                       <TableCell>{item.DisplayName}</TableCell>
+                      <TableCell>{item.partner}</TableCell>
+                      <TableCell>{item.order_id}</TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={13} className="text-center py-4">
+                    <TableCell colSpan={15} className="text-center py-4">
                       No data found for the current filters.
                     </TableCell>
                   </TableRow>

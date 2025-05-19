@@ -17,6 +17,7 @@ export function Dashboard() {
   const [customerFilter, setCustomerFilter] = useState("");
   const [spendRange, setSpendRange] = useState({ min: 0, max: 1000000 });
   const [frequencyRange, setFrequencyRange] = useState({ min: 0, max: 100 });
+  const [dateRange, setDateRange] = useState<{ from: Date | null; to: Date | null }>({ from: null, to: null });
 
   // Fetch data
   const { data: rawData } = useQuery({
@@ -42,7 +43,15 @@ export function Dashboard() {
         const matchesSpend = item.spend >= spendRange.min && item.spend <= spendRange.max;
         const matchesFrequency = item.frequency >= frequencyRange.min && item.frequency <= frequencyRange.max;
         
-        return matchesCampaign && matchesObjective && matchesCustomer && matchesSpend && matchesFrequency;
+        // Date range filtering
+        const itemDate = new Date(item.date_start);
+        const matchesDateRange = !dateRange.from || !dateRange.to || (
+          itemDate >= new Date(dateRange.from.setHours(0, 0, 0, 0)) && 
+          itemDate <= new Date(dateRange.to.setHours(0, 0,0, 0))
+        );
+        
+        return matchesCampaign && matchesObjective && matchesCustomer && 
+               matchesSpend && matchesFrequency && matchesDateRange;
       }) || [];
 
       // Calculate metrics
@@ -53,20 +62,32 @@ export function Dashboard() {
 
       // Group data by date for charts
       const spendOverTime = filteredData.reduce((acc, item) => {
-        const date = item.date_start.split('T')[0];
+        // Extract only the date part (YYYY-MM-DD)
+        const date = new Date(item.date_start).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + item.spend;
         return acc;
       }, {} as Record<string, number>);
 
       const impressionsOverTime = filteredData.reduce((acc, item) => {
-        const date = item.date_start.split('T')[0];
+        // Extract only the date part (YYYY-MM-DD)
+        const date = new Date(item.date_start).toISOString().split('T')[0];
         acc[date] = (acc[date] || 0) + item.impressions;
         return acc;
       }, {} as Record<string, number>);
 
-      // Convert to array format for charts
-      const spendData = Object.entries(spendOverTime).map(([date, value]) => ({ date, value }));
-      const impressionsData = Object.entries(impressionsOverTime).map(([date, value]) => ({ date, value }));
+      // Sort dates chronologically
+      const sortedDates = Object.keys(spendOverTime).sort();
+      
+      // Convert to array format for charts with sorted dates
+      const spendData = sortedDates.map(date => ({ 
+        date, 
+        value: spendOverTime[date] 
+      }));
+      
+      const impressionsData = sortedDates.map(date => ({ 
+        date, 
+        value: impressionsOverTime[date] 
+      }));
 
       // Update state with filtered data and metrics
       setFilteredData(filteredData);

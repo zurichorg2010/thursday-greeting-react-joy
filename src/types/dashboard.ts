@@ -16,6 +16,8 @@ export interface MetaAdsData {
   unique_clicks: number;
   unique_ctr: number;
   DisplayName: string;
+  partner: string;
+  order_id: string;
   
   // Action types
   actions_landing_page_view: number;
