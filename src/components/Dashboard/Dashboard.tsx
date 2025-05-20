@@ -44,12 +44,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
   const uniqueObjectives = Array.from(new Set(data.map(item => item.objective)));
   const uniqueCustomers = Array.from(new Set(data.map(item => item.DisplayName)));
   const uniquePartners = Array.from(new Set(data.map(item => item.partner)));
-  interface DataItem {
-    id: string | number;
-    spend: number | string;
-    date_start: string;
-    [key: string]: any;
-}
+  
   // Apply filters function
   const applyFilters = async (filters: {
     dateRange: { from: Date | undefined; to: Date | undefined };
@@ -64,20 +59,18 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       setSelectedPartners(filters.partners);
 
       let newFilteredData = [...data];
-      let uniqueData = new Map<string | number, DataItem>();
-      console.log(data.length,"sdasdasda")
+      let uniqueData = new Map<string | number, MetaAdsData>();
       // First, create unique data set using ID as key
-      let startDate = new Date('2025-04-01T00:00:00.000Z');
+      let startDate = new Date(dateRange.from);
       startDate.setHours(0, 0, 0, 0)
-      let endDate = new Date('2025-04-30T00:00:00.000Z');
+      let endDate = new Date(dateRange.to);
       endDate.setHours(0, 0, 0, 0)
-      console.log(data[5656],"data")
       const dateFilteredItems = data.filter(item => {
         let itemDate = new Date(item.date_start);
         itemDate.setHours(0, 0, 0, 0) -7;
         return itemDate >= startDate && itemDate <= endDate;
     });
-    const uniqueItems = new Map<string | number, DataItem>();
+    const uniqueItems = new Map<string | number, MetaAdsData>();
     dateFilteredItems.forEach(item => {
         if (item.id) {
             uniqueItems.set(item.id, item);
@@ -101,21 +94,21 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       console.log("Unique records:", uniqueDataArray.length);
 
       if (filters.dateRange.from && filters.dateRange.to) {
-        newFilteredData = newFilteredData.filter(item => {
+        newFilteredData = uniqueDataArray.filter(item => {
           const itemDate = new Date(item.date_start);
           return itemDate >= filters.dateRange.from! && itemDate <= filters.dateRange.to!;
         });
       }
 
       if (filters.campaigns.length > 0) {
-        newFilteredData = newFilteredData.filter(item => 
+        newFilteredData = uniqueDataArray.filter(item => 
           filters.campaigns.includes(item.campaign_name)
         );
       }
 
       // Partner filter
       if (filters.partners.length > 0) {
-        newFilteredData = newFilteredData.filter(item => {
+        newFilteredData = uniqueDataArray.filter(item => {
           return filters.partners.some(partner => 
             `${item.partner}`?.toLowerCase().includes(partner.toLowerCase())
           );
@@ -124,7 +117,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
 
       // Order ID filter
       if (filters.orderIds.length > 0) {
-        newFilteredData = newFilteredData.filter(item => {
+        newFilteredData = uniqueDataArray.filter(item => {
           return filters.orderIds.some(orderId => 
             `${item.order_id}`?.toLowerCase().includes(`${orderId}`.toLowerCase())
           );
