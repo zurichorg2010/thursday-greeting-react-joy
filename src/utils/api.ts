@@ -132,9 +132,9 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
           },
           body: JSON.stringify({
             "attributionId": "24721804",
-            "contextPE": "11owner1_FFFFFFFFFFFFFF00001567790434071286_1owner1_FFFFFFFFFFFFFF00001743977882277128_",
+            "contextPE": "11owner1_FFFFFFFFFFFFFF00001567790434071286_1owner1_FFFFFFFFFFFFFF00001743977882277128_",
             "tableId": "_FFFFFFFFFFFFFF00001734098136240176_"
-          }),
+        }),
         }
       );
       const response = await fetch(
