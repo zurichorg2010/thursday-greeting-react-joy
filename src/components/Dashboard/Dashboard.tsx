@@ -60,27 +60,8 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
 
       let newFilteredData = [...data];
       let uniqueData = new Map<string | number, MetaAdsData>();
+
       // First, create unique data set using ID as key
-      let startDate = new Date(dateRange.from);
-      startDate.setHours(0, 0, 0, 0)
-      let endDate = new Date(dateRange.to);
-      endDate.setHours(0, 0, 0, 0)
-      const dateFilteredItems = data.filter(item => {
-        let itemDate = new Date(item.date_start);
-        itemDate.setHours(0, 0, 0, 0) -7;
-        return itemDate >= startDate && itemDate <= endDate;
-    });
-    const uniqueItems = new Map<string | number, MetaAdsData>();
-    dateFilteredItems.forEach(item => {
-        if (item.id) {
-            uniqueItems.set(item.id, item);
-        }
-    });
-    const totalSpend = Array.from(uniqueItems.values()).reduce((sum, item) => {
-      const spend = typeof item.spend === 'string' ? parseFloat(item.spend) : (item.spend || 0);
-      return sum + (isNaN(spend) ? 0 : spend);
-  }, 0);
-  console.log(totalSpend,"totalsdsdsSpendsds")
       data.forEach(item => {
         if (item.id) {
           uniqueData.set(item.id, item);
@@ -93,22 +74,40 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       console.log("Total records:", data.length);
       console.log("Unique records:", uniqueDataArray.length);
 
+      // Date filtering with proper date handling
       if (filters.dateRange.from && filters.dateRange.to) {
-        newFilteredData = uniqueDataArray.filter(item => {
-          const itemDate = new Date(item.date_start);
-          return itemDate >= filters.dateRange.from! && itemDate <= filters.dateRange.to!;
+        const startDate = new Date(filters.dateRange.from);
+        startDate.setHours(0, 0, 0, 0);
+        const endDate = new Date(filters.dateRange.to);
+        endDate.setHours(0,0,0,0);
+
+        const dateFilteredItems = uniqueDataArray.filter(item => {
+          let itemDate = new Date(item.date_start);
+          itemDate.setHours(0,0,0,0) - 7;
+          return itemDate >= startDate && itemDate <= endDate;
         });
+
+        // Calculate total spend for date filtered items
+        const totalSpend = dateFilteredItems.reduce((sum, item) => {
+          const spend = typeof item.spend === 'string' ? parseFloat(item.spend) : (item.spend || 0);
+          return sum + (isNaN(spend) ? 0 : spend);
+        }, 0);
+
+        console.log("Date filtered items:", dateFilteredItems.length);
+        console.log("Total spend for filtered period:", totalSpend);
+
+        newFilteredData = dateFilteredItems;
       }
 
       if (filters.campaigns.length > 0) {
-        newFilteredData = uniqueDataArray.filter(item => 
+        newFilteredData = newFilteredData.filter(item => 
           filters.campaigns.includes(item.campaign_name)
         );
       }
 
       // Partner filter
       if (filters.partners.length > 0) {
-        newFilteredData = uniqueDataArray.filter(item => {
+        newFilteredData = newFilteredData.filter(item => {
           return filters.partners.some(partner => 
             `${item.partner}`?.toLowerCase().includes(partner.toLowerCase())
           );
@@ -117,7 +116,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
 
       // Order ID filter
       if (filters.orderIds.length > 0) {
-        newFilteredData = uniqueDataArray.filter(item => {
+        newFilteredData = newFilteredData.filter(item => {
           return filters.orderIds.some(orderId => 
             `${item.order_id}`?.toLowerCase().includes(`${orderId}`.toLowerCase())
           );
@@ -125,7 +124,6 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       }
 
       let summary = await getAnalyticsSummary(newFilteredData);
-      summary.totalSpend = totalSpend;
       const campaignPerformance = await getCampaignPerformance(newFilteredData);
       const actionBreakdown = await getActionTypeBreakdown(newFilteredData);
       const filteredSummary = await getAnalyticsSummary(newFilteredData);
@@ -135,7 +133,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
         actionBreakdown: actionBreakdown,
         filteredData: newFilteredData,
         filteredSummary: filteredSummary,
-        uniqueData: uniqueDataArray // Add unique data to analytics data
+        uniqueData: uniqueDataArray
       });
       setFilteredData(newFilteredData);
     } finally {
