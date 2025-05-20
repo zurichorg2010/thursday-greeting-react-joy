@@ -55,9 +55,15 @@ export function Dashboard() {
       }) || [];
 
       // Calculate metrics
+      console.log(filteredData.length,"sd")
+      console.log(dateRange,"sasd")
       const totalImpressions = filteredData.reduce((sum, item) => sum + item.impressions, 0);
       const totalActions = filteredData.reduce((sum, item) => sum + item.clicks, 0);
-      const totalSpend = filteredData.reduce((sum, item) => sum + item.spend, 0);
+      const totalSpend = filteredData.reduce((sum, item) => {
+        const spend = typeof item.spend === 'string' ? parseFloat(item.spend) : (item.spend || 0);
+        return sum + (isNaN(spend) ? 0 : spend);
+    }, 0);
+      
       const averageCTR = totalImpressions > 0 ? (totalActions / totalImpressions) * 100 : 0;
 
       // Group data by date for charts

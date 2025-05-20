@@ -44,7 +44,12 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
   const uniqueObjectives = Array.from(new Set(data.map(item => item.objective)));
   const uniqueCustomers = Array.from(new Set(data.map(item => item.DisplayName)));
   const uniquePartners = Array.from(new Set(data.map(item => item.partner)));
-
+  interface DataItem {
+    id: string | number;
+    spend: number | string;
+    date_start: string;
+    [key: string]: any;
+}
   // Apply filters function
   const applyFilters = async (filters: {
     dateRange: { from: Date | undefined; to: Date | undefined };
@@ -59,17 +64,46 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       setSelectedPartners(filters.partners);
 
       let newFilteredData = [...data];
+      let uniqueData = new Map<string | number, DataItem>();
+      console.log(data.length,"sdasdasda")
+      // First, create unique data set using ID as key
+      let startDate = new Date('2025-04-01T00:00:00.000Z');
+      startDate.setHours(0, 0, 0, 0)
+      let endDate = new Date('2025-04-30T00:00:00.000Z');
+      endDate.setHours(0, 0, 0, 0)
+      console.log(data[5656],"data")
+      const dateFilteredItems = data.filter(item => {
+        let itemDate = new Date(item.date_start);
+        itemDate.setHours(0, 0, 0, 0) -7;
+        return itemDate >= startDate && itemDate <= endDate;
+    });
+    const uniqueItems = new Map<string | number, DataItem>();
+    dateFilteredItems.forEach(item => {
+        if (item.id) {
+            uniqueItems.set(item.id, item);
+        }
+    });
+    const totalSpend = Array.from(uniqueItems.values()).reduce((sum, item) => {
+      const spend = typeof item.spend === 'string' ? parseFloat(item.spend) : (item.spend || 0);
+      return sum + (isNaN(spend) ? 0 : spend);
+  }, 0);
+  console.log(totalSpend,"totalsdsdsSpendsds")
+      data.forEach(item => {
+        if (item.id) {
+          uniqueData.set(item.id, item);
+        }
+      });
+
+      // Convert unique data back to array
+      const uniqueDataArray = Array.from(uniqueData.values());
+
+      console.log("Total records:", data.length);
+      console.log("Unique records:", uniqueDataArray.length);
 
       if (filters.dateRange.from && filters.dateRange.to) {
         newFilteredData = newFilteredData.filter(item => {
           const itemDate = new Date(item.date_start);
-          // Set start date to beginning of day (00:00:00)
-          const start = new Date(filters.dateRange.from!);
-          start.setHours(0, 0, 0, 0);
-          // Set end date to end of day (0:59:59.999)
-          const end = new Date(filters.dateRange.to!);
-          end.setHours(0, 0, 0, 0);
-          return itemDate >= start && itemDate <= end;
+          return itemDate >= filters.dateRange.from! && itemDate <= filters.dateRange.to!;
         });
       }
 
@@ -97,7 +131,8 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
         });
       }
 
-      const summary = await getAnalyticsSummary(newFilteredData);
+      let summary = await getAnalyticsSummary(newFilteredData);
+      summary.totalSpend = totalSpend;
       const campaignPerformance = await getCampaignPerformance(newFilteredData);
       const actionBreakdown = await getActionTypeBreakdown(newFilteredData);
       const filteredSummary = await getAnalyticsSummary(newFilteredData);
@@ -106,7 +141,8 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
         campaignPerformance: campaignPerformance,
         actionBreakdown: actionBreakdown,
         filteredData: newFilteredData,
-        filteredSummary: filteredSummary
+        filteredSummary: filteredSummary,
+        uniqueData: uniqueDataArray // Add unique data to analytics data
       });
       setFilteredData(newFilteredData);
     } finally {
@@ -148,6 +184,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
             <TabsContent value="summary">
               <SummaryTab 
                 data={filteredData} 
+                dateRange={dateRange}
                 summary={newAnalyticsData.summary || analyticsData.summary}
                 campaignPerformance={newAnalyticsData.campaignPerformance || analyticsData.campaignPerformance}
                 actionBreakdown={newAnalyticsData.actionBreakdown || analyticsData.actionBreakdown}

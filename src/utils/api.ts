@@ -11,6 +11,11 @@ interface ApiErrorResponse {
   message: string;
 }
 
+// Global state to store data in memory
+let globalMetaAdsData: MetaAdsData[] = [];
+
+// Commented out IndexedDB code for reference
+/*
 const DB_NAME = 'meta_ads_db';
 const STORE_NAME = 'ads_data';
 const DB_VERSION = 1;
@@ -32,29 +37,58 @@ const initDB = (): Promise<IDBDatabase> => {
   });
 };
 
-// Save data to IndexedDB
+// Save data to IndexedDB with update functionality
 const saveToIndexedDB = async (data: MetaAdsData[]): Promise<void> => {
   const db = await initDB();
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(STORE_NAME, 'readwrite');
     const store = transaction.objectStore(STORE_NAME);
 
-    // Clear existing data
-    store.clear();
+    // First, get all existing records
+    const getAllRequest = store.getAll();
+    
+    getAllRequest.onsuccess = () => {
+      const existingData = getAllRequest.result;
+      const existingMap = new Map(existingData.map(item => [item.id, item]));
 
-    // Add new data
-    data.forEach(item => {
-      store.add(item);
-    });
+      // Clear existing data
+      store.clear();
 
-    transaction.oncomplete = () => {
-      db.close();
-      resolve();
+      // Add or update data
+      data.forEach(item => {
+        if (existingMap.has(item.id)) {
+          // If item exists, update it with new data
+          const existingItem = existingMap.get(item.id);
+          const updatedItem = {
+            ...existingItem,
+            ...item,
+            // Preserve any fields from existing item that might not be in new item
+            updated_at: new Date().toISOString()
+          };
+          store.add(updatedItem);
+        } else {
+          // If item doesn't exist, add it as new
+          store.add({
+            ...item,
+            created_at: new Date().toISOString()
+          });
+        }
+      });
+
+      transaction.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+
+      transaction.onerror = () => {
+        db.close();
+        reject(transaction.error);
+      };
     };
 
-    transaction.onerror = () => {
+    getAllRequest.onerror = () => {
       db.close();
-      reject(transaction.error);
+      reject(getAllRequest.error);
     };
   });
 };
@@ -78,24 +112,15 @@ const readFromIndexedDB = async (): Promise<MetaAdsData[]> => {
     };
   });
 };
+*/
 
 export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsData[]> => {
-  console.log("Fetching data from API loda lahsun");
-  if (!forceRefresh) {
-    try {
-      const cachedData = await readFromIndexedDB();
-
-      if (cachedData && cachedData.length > 0) {
-        return cachedData;
-      }
-    } catch (error) {
-      console.error('Error reading cached data:', error);
-    }
+  // Check if we have data in memory and not forcing refresh
+  if (!forceRefresh && globalMetaAdsData.length > 0) {
+    return globalMetaAdsData;
   }
 
   try {
-    console.log("Fetching data from local file");
-
     let data: ApiResponse | ApiErrorResponse;
     try {
       const userResponse = await fetch(
@@ -106,10 +131,10 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-    "attributionId": "24721804",
-    "contextPE": "11owner1_FFFFFFFFFFFFFF00001567790434071286_1owner1_FFFFFFFFFFFFFF00001743977882277128_",
-    "tableId": "_FFFFFFFFFFFFFF00001734098136240176_"
-}),
+            "attributionId": "24721804",
+            "contextPE": "11owner1_FFFFFFFFFFFFFF00001567790434071286_1owner1_FFFFFFFFFFFFFF00001743977882277128_",
+            "tableId": "_FFFFFFFFFFFFFF00001734098136240176_"
+          }),
         }
       );
       const response = await fetch(
@@ -139,13 +164,8 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
         throw new Error(`Failed to load data.json: ${response.status}`);
       }
       data = await response.json() as ApiResponse;
+      console.log(data.result.length,"")
     }
-
-
-
-
-
-
 
     if (data.status !== "success" || !("result" in data)) {
       toast({
@@ -155,29 +175,14 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       });
       return [];
     }
-    console.log(data.result[0].created_at)
-    console.log(convertUTCToPST(data.result[0].created_at))
     
-    // Create a Map to store unique items by ID
-    const uniqueItemsMap = new Map();
-    
-    // First pass: collect unique items by ID
-    data.result.forEach(item => {
-      const itemId = item["Primary Key"] || String(item["Row ID"]);
-      // If item doesn't exist in map or has a newer created_at, add/update it
-      if (!uniqueItemsMap.has(itemId) || 
-          new Date(item.created_at) > new Date(uniqueItemsMap.get(itemId).created_at)) {
-        uniqueItemsMap.set(itemId, item);
-      }
-    });
-
-    const transformedData = Array.from(uniqueItemsMap.values()).map(item => ({
-      id: item["Primary Key"] || String(item["Row ID"]),
+    const transformedData = data.result.map(item => ({
+      id: item["id"] || String(item["Row ID"]), // Use other_id as the primary id
+      other_id: item["id"] || String(item["Row ID"]), // Store the original id as other_id
       campaign_name: item.campaign_name || "",
-      date_start: item.date_start ? convertUTCToPST(item.date_start) : "",
-      date_stop: item.date_stop ? convertUTCToPST(item.date_stop) : "",
+      date_start: item.date_start, 
+      date_stop: item.date_stop ,
       impressions: Number(item.impressions) || 0,
-      other_id: item.id || "",
       clicks: Number(item.clicks) || 0,
       ctr: Number(item.ctr) || 0,
       cpc: Number(item.cpc) || 0,
@@ -213,13 +218,8 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       created_at: item.created_at ? convertUTCToPST(item.created_at) : "",
     }));
 
-    // Save the transformed data to IndexedDB
-    try {
-      await saveToIndexedDB(transformedData);
-      console.log('Data cached successfully');
-    } catch (error) {
-      console.error('Error caching data:', error);
-    }
+    // Update global state
+    globalMetaAdsData = transformedData;
 
     return transformedData;
   } catch (error) {
@@ -234,7 +234,6 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
 };
 
 function convertUTCToPST(date: string): string {
-  console.log("Converting UTC to PST", date);
   const dateObj = new Date(date);
   
   // Format the date in PST/PDT
@@ -249,6 +248,5 @@ function convertUTCToPST(date: string): string {
     hour12: false
   });
   
-  console.log("PST Date", pstDate);
   return pstDate;
 }

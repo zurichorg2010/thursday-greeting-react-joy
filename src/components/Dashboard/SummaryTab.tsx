@@ -5,12 +5,16 @@ import { formatNumber, formatCurrency } from "@/utils/format";
 
 interface SummaryTabProps {
   data: MetaAdsData[];
+  dateRange: {
+    from: Date | undefined;
+    to: Date | undefined;
+  };
   summary: any;
   campaignPerformance: any[];
   actionBreakdown: any[];
 }
 
-const SummaryTab = ({ data, summary, campaignPerformance, actionBreakdown }: SummaryTabProps) => {
+const SummaryTab = ({ data, dateRange, summary, campaignPerformance, actionBreakdown }: SummaryTabProps) => {
   if (!summary) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -18,6 +22,17 @@ const SummaryTab = ({ data, summary, campaignPerformance, actionBreakdown }: Sum
       </div>
     );
   }
+  const dateFilteredItems = data.filter(item => {
+    const itemDate = new Date(item.date_start);
+    return itemDate >= dateRange.from && itemDate <= dateRange.to;
+});
+
+const totalSpend = dateFilteredItems.reduce((sum, item) => {
+  const spend = typeof item.spend === 'string' ? parseFloat(item.spend) : (item.spend || 0);
+  return sum + (isNaN(spend) ? 0 : spend);
+}, 0);
+
+  
 
   return (
     <div className="space-y-6">

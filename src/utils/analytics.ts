@@ -170,7 +170,6 @@ export const getAnalyticsSummary = async (
 
   // Group data by date for time series
   const dateGroups = new Map<string, { spend: number; impressions: number }>();
-
   data.forEach((item) => {
     // Aggregate totals
     summary.totalImpressions += item.impressions;
