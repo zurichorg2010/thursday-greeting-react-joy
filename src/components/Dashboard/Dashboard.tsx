@@ -83,7 +83,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       if (filters.partners.length > 0) {
         newFilteredData = newFilteredData.filter(item => {
           return filters.partners.some(partner => 
-            item.partner?.toLowerCase().includes(partner.toLowerCase())
+            `${item.partner}`?.toLowerCase().includes(partner.toLowerCase())
           );
         });
       }
@@ -92,7 +92,7 @@ const Dashboard = ({ data, analyticsData }: DashboardProps) => {
       if (filters.orderIds.length > 0) {
         newFilteredData = newFilteredData.filter(item => {
           return filters.orderIds.some(orderId => 
-            item.order_id?.toLowerCase().includes(orderId.toLowerCase())
+            `${item.order_id}`?.toLowerCase().includes(`${orderId}`.toLowerCase())
           );
         });
       }

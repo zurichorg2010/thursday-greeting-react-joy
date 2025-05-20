@@ -187,7 +187,7 @@ const FilterPanel = ({
                 <div className="max-h-72 overflow-auto space-y-3">
                   {uniquePartners
                     .filter(partner => 
-                      partner && typeof partner === 'string' && partner.toLowerCase().includes(partnerSearch.toLowerCase())
+                      partner && typeof partner === 'string' && `${partner}`.toLowerCase().includes(`${partnerSearch}`.toLowerCase())
                     )
                     .map((partner) => (
                       <div key={partner} className="flex items-center space-x-2">
@@ -240,7 +240,7 @@ const FilterPanel = ({
                 <div className="max-h-72 overflow-auto space-y-3">
                   {campaigns
                     .filter(campaign => 
-                      campaign && typeof campaign === 'string' && campaign.toLowerCase().includes(campaignSearch.toLowerCase())
+                      campaign && typeof campaign === 'string' && `${campaign}`.toLowerCase().includes(`${campaignSearch}`.toLowerCase())
                     )
                     .map((campaign) => (
                       <div key={campaign} className="flex items-center space-x-2">
@@ -287,7 +287,7 @@ const FilterPanel = ({
                 <div className="max-h-72 overflow-auto space-y-3">
                   {uniqueOrderIds
                     .filter(orderId => 
-                      orderId && String(orderId).toLowerCase().includes(orderIdSearch.toLowerCase())
+                      orderId && String(orderId).toLowerCase().includes(`${orderIdSearch}`.toLowerCase())
                     )
                     .map((orderId) => (
                       <div key={String(orderId)} className="flex items-center space-x-2">

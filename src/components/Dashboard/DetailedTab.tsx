@@ -34,11 +34,11 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
   const filteredData = data.filter(item => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      item.campaign_name.toLowerCase().includes(searchLower) ||
-      item.objective.toLowerCase().includes(searchLower) ||
-      item.DisplayName.toLowerCase().includes(searchLower) ||
-      (item.partner?.toLowerCase().includes(searchLower) || false) ||
-      (item.order_id?.toLowerCase().includes(searchLower) || false)
+      `${item.campaign_name}`.toLowerCase().includes(searchLower) ||
+      `${item.objective}`.toLowerCase().includes(searchLower) ||
+      `${item.DisplayName}`.toLowerCase().includes(searchLower) ||
+      (`${item.partner}`?.toLowerCase().includes(searchLower) || false) ||
+      (`${item.order_id}`?.toLowerCase().includes(searchLower) || false)
     );
   });
 

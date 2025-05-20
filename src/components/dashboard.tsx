@@ -35,11 +35,11 @@ export function Dashboard() {
       // Filter logic here
       const filteredData = rawData?.filter(item => {
         const matchesCampaign = !campaignFilter || 
-          item.campaign_name.toLowerCase().includes(campaignFilter.toLowerCase());
+          `${item.campaign_name}`.toLowerCase().includes(`${campaignFilter}`.toLowerCase());
         const matchesObjective = !objectiveFilter || 
-          item.objective.toLowerCase().includes(objectiveFilter.toLowerCase());
+          `${item.objective}`.toLowerCase().includes(`${objectiveFilter}`.toLowerCase());
         const matchesCustomer = !customerFilter || 
-          item.DisplayName.toLowerCase().includes(customerFilter.toLowerCase());
+          `${item.DisplayName}`.toLowerCase().includes(`${customerFilter}`.toLowerCase());
         const matchesSpend = item.spend >= spendRange.min && item.spend <= spendRange.max;
         const matchesFrequency = item.frequency >= frequencyRange.min && item.frequency <= frequencyRange.max;
         
