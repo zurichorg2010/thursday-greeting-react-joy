@@ -228,11 +228,12 @@ export const getCampaignPerformance = async (
   spend: number;
   impressions: number;
   actions: number;
+  leads: number;
   ctr: number;
 }[]> => {
   const campaignMap = new Map<
     string,
-    { spend: number; impressions: number; actions: number }
+    { spend: number; impressions: number; actions: number; leads: number }
   >();
 
   data.forEach((item) => {
@@ -240,21 +241,24 @@ export const getCampaignPerformance = async (
       spend: 0,
       impressions: 0,
       actions: 0,
+      leads: 0
     };
 
     campaignMap.set(item.campaign_name, {
       spend: existing.spend + item.spend,
       impressions: existing.impressions + item.impressions,
       actions: existing.actions + calculateTotalActions(item),
+      leads: existing.leads + (item.actions_landing_page_view || 0)
     });
   });
 
-  return Array.from(campaignMap.entries()).map(([campaignName, metrics]) => ({
+  return Array.from(campaignMap.entries()).map(([campaignName, data]) => ({
     campaignName,
-    spend: metrics.spend,
-    impressions: metrics.impressions,
-    actions: metrics.actions,
-    ctr: metrics.impressions > 0 ? (metrics.actions / metrics.impressions) * 100 : 0,
+    spend: data.spend,
+    impressions: data.impressions,
+    actions: data.actions,
+    leads: data.leads,
+    ctr: data.impressions > 0 ? (data.actions / data.impressions) * 100 : 0
   }));
 };
 

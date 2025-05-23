@@ -33,6 +33,7 @@ const MonthlyTab = ({ data }: MonthlyTabProps) => {
       spend: 0,
       impressions: 0,
       clicks: 0,
+      leads: 0,
       ctr: 0,
       cpc: 0,
       cpm: 0,
@@ -59,6 +60,7 @@ const MonthlyTab = ({ data }: MonthlyTabProps) => {
       allMonths[monthKey].spend += item.spend;
       allMonths[monthKey].impressions += item.impressions;
       allMonths[monthKey].clicks += item.clicks;
+      allMonths[monthKey].leads += item.actions_landing_page_view || 0;
       allMonths[monthKey].ctr += item.ctr;
       allMonths[monthKey].cpc += item.cpc;
       allMonths[monthKey].cpm += item.cpm;
@@ -122,9 +124,9 @@ const MonthlyTab = ({ data }: MonthlyTabProps) => {
           <CardContent className="h-80">
             <LineChart 
               data={displayMonthlyData}
-              categories={['spend', 'actions_link_click', 'actions_video_view']}
+              categories={['spend', 'actions_link_click', 'actions_video_view', 'leads']}
               index="displayMonth"
-              colors={["#ea384c", "#4CAF50", "#2563eb"]}
+              colors={["#ea384c", "#4CAF50", "#2563eb", "#F59E0B"]}
               valueFormatter={(value) => `${formatCurrency(value)}`}
               yAxisWidth={60}
             />
@@ -160,6 +162,7 @@ const MonthlyTab = ({ data }: MonthlyTabProps) => {
                   <TableHead>Month</TableHead>
                   <TableHead className="text-right">Impressions</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
+                  <TableHead className="text-right">Leads</TableHead>
                   <TableHead className="text-right">CTR</TableHead>
                   <TableHead className="text-right">Spend</TableHead>
                   <TableHead className="text-right">CPC</TableHead>
@@ -172,6 +175,7 @@ const MonthlyTab = ({ data }: MonthlyTabProps) => {
                     <TableCell>{month.displayMonth}</TableCell>
                     <TableCell className="text-right">{formatNumber(month.impressions)}</TableCell>
                     <TableCell className="text-right">{formatNumber(month.clicks)}</TableCell>
+                    <TableCell className="text-right">{formatNumber(month.leads)}</TableCell>
                     <TableCell className="text-right">{(month.ctr * 100).toFixed(2)}%</TableCell>
                     <TableCell className="text-right">{formatCurrency(month.spend)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(month.cpc)}</TableCell>

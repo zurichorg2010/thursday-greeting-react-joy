@@ -203,6 +203,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       actions_page_engagement: Number(item.actions_page_engagement) || 0,
       actions_post_engagement: Number(item.actions_post_engagement) || 0,
       actions_post_reaction: Number(item.actions_post_reaction) || 0,
+      leads: Number(item.leads) || 0,
       actions_video_view: Number(item.actions_video_view) || 0,
 
       // Cost per action types

@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetaAdsData } from "@/types/dashboard";
 import { LineChart, BarChart } from "@/components/ui/chart";
@@ -27,6 +26,7 @@ const DailyTab = ({ data }: DailyTabProps) => {
         spend: 0,
         impressions: 0,
         clicks: 0,
+        leads: 0,
         ctr: 0,
         cpc: 0,
         cpm: 0,
@@ -45,6 +45,7 @@ const DailyTab = ({ data }: DailyTabProps) => {
     acc[date].spend += item.spend;
     acc[date].impressions += item.impressions;
     acc[date].clicks += item.clicks;
+    acc[date].leads += item.actions_landing_page_view || 0;
     acc[date].ctr += item.ctr;
     acc[date].cpc += item.cpc;
     acc[date].cpm += item.cpm;
@@ -96,9 +97,9 @@ const DailyTab = ({ data }: DailyTabProps) => {
           <CardContent className="h-80">
             <LineChart 
               data={sortedDailyData}
-              categories={['spend', 'actions_link_click', 'actions_video_view']}
+              categories={['spend', 'actions_link_click', 'actions_video_view', 'leads']}
               index="date"
-              colors={["#ea384c", "#4CAF50", "#2563eb"]}
+              colors={["#ea384c", "#4CAF50", "#2563eb", "#F59E0B"]}
               valueFormatter={(value) => `${formatCurrency(value)}`}
               yAxisWidth={60}
             />
@@ -134,6 +135,7 @@ const DailyTab = ({ data }: DailyTabProps) => {
                   <TableHead>Date</TableHead>
                   <TableHead className="text-right">Impressions</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
+                  <TableHead className="text-right">Leads</TableHead>
                   <TableHead className="text-right">CTR</TableHead>
                   <TableHead className="text-right">Spend</TableHead>
                   <TableHead className="text-right">CPC</TableHead>
@@ -146,6 +148,7 @@ const DailyTab = ({ data }: DailyTabProps) => {
                     <TableCell>{new Date(day.date).toLocaleDateString()}</TableCell>
                     <TableCell className="text-right">{formatNumber(day.impressions)}</TableCell>
                     <TableCell className="text-right">{formatNumber(day.clicks)}</TableCell>
+                    <TableCell className="text-right">{formatNumber(day.leads)}</TableCell>
                     <TableCell className="text-right">{(day.ctr * 100).toFixed(2)}%</TableCell>
                     <TableCell className="text-right">{formatCurrency(day.spend)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(day.cpc)}</TableCell>

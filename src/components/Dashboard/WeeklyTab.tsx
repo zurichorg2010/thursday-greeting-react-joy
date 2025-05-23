@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetaAdsData } from "@/types/dashboard";
 import { LineChart, BarChart } from "@/components/ui/chart";
@@ -30,6 +29,7 @@ const WeeklyTab = ({ data }: WeeklyTabProps) => {
         spend: 0,
         impressions: 0,
         clicks: 0,
+        leads: 0,
         ctr: 0,
         cpc: 0,
         cpm: 0,
@@ -48,6 +48,7 @@ const WeeklyTab = ({ data }: WeeklyTabProps) => {
     acc[weekKey].spend += item.spend;
     acc[weekKey].impressions += item.impressions;
     acc[weekKey].clicks += item.clicks;
+    acc[weekKey].leads += item.actions_landing_page_view || 0;
     acc[weekKey].ctr += item.ctr;
     acc[weekKey].cpc += item.cpc;
     acc[weekKey].cpm += item.cpm;
@@ -99,9 +100,9 @@ const WeeklyTab = ({ data }: WeeklyTabProps) => {
           <CardContent className="h-80">
             <LineChart 
               data={sortedWeeklyData}
-              categories={['spend', 'actions_link_click', 'actions_video_view']}
+              categories={['spend', 'actions_link_click', 'actions_video_view', 'leads']}
               index="week"
-              colors={["#ea384c", "#4CAF50", "#2563eb"]}
+              colors={["#ea384c", "#4CAF50", "#2563eb", "#F59E0B"]}
               valueFormatter={(value) => `${formatCurrency(value)}`}
               yAxisWidth={60}
             />
@@ -137,6 +138,7 @@ const WeeklyTab = ({ data }: WeeklyTabProps) => {
                   <TableHead>Week</TableHead>
                   <TableHead className="text-right">Impressions</TableHead>
                   <TableHead className="text-right">Clicks</TableHead>
+                  <TableHead className="text-right">Leads</TableHead>
                   <TableHead className="text-right">CTR</TableHead>
                   <TableHead className="text-right">Spend</TableHead>
                   <TableHead className="text-right">CPC</TableHead>
@@ -149,6 +151,7 @@ const WeeklyTab = ({ data }: WeeklyTabProps) => {
                     <TableCell>{week.week}</TableCell>
                     <TableCell className="text-right">{formatNumber(week.impressions)}</TableCell>
                     <TableCell className="text-right">{formatNumber(week.clicks)}</TableCell>
+                    <TableCell className="text-right">{formatNumber(week.leads)}</TableCell>
                     <TableCell className="text-right">{(week.ctr * 100).toFixed(2)}%</TableCell>
                     <TableCell className="text-right">{formatCurrency(week.spend)}</TableCell>
                     <TableCell className="text-right">{formatCurrency(week.cpc)}</TableCell>

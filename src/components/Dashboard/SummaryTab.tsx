@@ -37,7 +37,7 @@ const totalSpend = dateFilteredItems.reduce((sum, item) => {
   return (
     <div className="space-y-6">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Impressions</CardTitle>
@@ -53,6 +53,15 @@ const totalSpend = dateFilteredItems.reduce((sum, item) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatNumber(summary.totalActions)}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatNumber(summary.totalLeads)}</div>
           </CardContent>
         </Card>
         
@@ -124,6 +133,7 @@ const totalSpend = dateFilteredItems.reduce((sum, item) => {
             <th className="text-right p-4">Spend</th>
             <th className="text-right p-4">Impressions</th>
             <th className="text-right p-4">Actions</th>
+            <th className="text-right p-4">Leads</th>
             <th className="text-right p-4">CTR</th>
           </tr>
         </thead>
@@ -134,6 +144,7 @@ const totalSpend = dateFilteredItems.reduce((sum, item) => {
               <td className="text-right p-4">{formatCurrency(campaign.spend)}</td>
               <td className="text-right p-4">{formatNumber(campaign.impressions)}</td>
               <td className="text-right p-4">{formatNumber(campaign.actions)}</td>
+              <td className="text-right p-4">{formatNumber(campaign.leads)}</td>
               <td className="text-right p-4">{campaign.ctr.toFixed(2)}%</td>
             </tr>
           ))}

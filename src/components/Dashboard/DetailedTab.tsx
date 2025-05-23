@@ -112,6 +112,9 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
                   <TableHead className="cursor-pointer text-right" onClick={() => requestSort('clicks')}>
                     Clicks {getSortDirection('clicks')}
                   </TableHead>
+                  <TableHead className="cursor-pointer text-right" onClick={() => requestSort('actions_landing_page_view')}>
+                    Leads {getSortDirection('actions_landing_page_view')}
+                  </TableHead>
                   <TableHead className="cursor-pointer text-right" onClick={() => requestSort('ctr')}>
                     CTR {getSortDirection('ctr')}
                   </TableHead>
@@ -155,6 +158,7 @@ const DetailedTab = ({ data }: DetailedTabProps) => {
                       <TableCell>{new Date(item.date_start).toLocaleDateString()}</TableCell>
                       <TableCell className="text-right">{formatNumber(item.impressions)}</TableCell>
                       <TableCell className="text-right">{formatNumber(item.clicks)}</TableCell>
+                      <TableCell className="text-right">{formatNumber(item.actions_landing_page_view || 0)}</TableCell>
                       <TableCell className="text-right">{(item.ctr * 100).toFixed(2)}%</TableCell>
                       <TableCell className="text-right">{formatCurrency(item.spend)}</TableCell>
                       <TableCell className="text-right">{formatCurrency(item.cpc)}</TableCell>
