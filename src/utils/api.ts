@@ -147,7 +147,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
           body: JSON.stringify({
             clientId: (await userResponse.json() as ApiResponse).result,
             tableId: "_FFFFFFFFFFFFFF00001748365489925615_",
-            pageSize: 25000,
+            pageSize: 100000,
             conditions: [],
           }),
         }
