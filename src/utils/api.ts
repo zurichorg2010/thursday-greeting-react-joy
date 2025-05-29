@@ -146,7 +146,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
           },
           body: JSON.stringify({
             clientId: (await userResponse.json() as ApiResponse).result,
-            tableId: "_FFFFFFFFFFFFFF00001747150501443726_",
+            tableId: "_FFFFFFFFFFFFFF00001748365489925615_",
             pageSize: 25000,
             conditions: [],
           }),
@@ -203,7 +203,7 @@ export const fetchMetaAdsData = async (forceRefresh = false): Promise<MetaAdsDat
       actions_page_engagement: Number(item.actions_page_engagement) || 0,
       actions_post_engagement: Number(item.actions_post_engagement) || 0,
       actions_post_reaction: Number(item.actions_post_reaction) || 0,
-      leads: Number(item.leads) || 0,
+      leads: Number(item.actions_lead) || 0,
       actions_video_view: Number(item.actions_video_view) || 0,
 
       // Cost per action types
